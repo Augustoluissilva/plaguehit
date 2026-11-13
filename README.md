@@ -31,16 +31,16 @@ Treinamos uma rede neural convolucional (CNN) com **TensorFlow/Keras** para clas
 | `saudavel` | Folha saudável |
 | `sintomas` | Folha com sintomas visíveis |
 
-- **InputInput:** images resized to 150x150 px and normalized (0 to 1).
-- **Output:** predicted class + confidence score (%).
-- **Architecture / technique:** Transfer learning using MobileNetV2 as the base feature extractor, combined with custom classification layers (Global Average Pooling, a 256-unit Dense layer with Dropout, and a final 3-unit Dense layer).
-- **Dataset:** 150 imagens no total, balanceadas com 50 itens para cada classe (`mosca_branca`, `saudavel`, `sintomas`).
-- **Resultados:** **87,50% de acurácia** no conjunto de avaliação.
+- **Entrada:** imagens redimensionadas para **150x150 px** e normalizadas (0 a 1).
+- **Saída:** classe prevista + nível de confiança (%).
+- **Arquitetura / técnica:** transfer learning com **MobileNetV2** como extrator de características, seguido de camadas de classificação próprias (Global Average Pooling, camada Dense de 256 unidades com Dropout e Dense final de 3 unidades).
+- **Dataset:** [disponível no Google Drive](https://drive.google.com/drive/folders/12N3Yrw-_EajWq_iKbN4eZKtimpIj-r30?usp=drive_link). Total de **150 imagens** (50 por classe: `mosca_branca`, `saudavel` e `sintomas`). Imagens de folhas saudáveis e com sintomas provenientes do [Beans Dataset](https://github.com/AI-Lab-Makerere/ibean/) (Makerere AI Lab, Uganda, licença MIT). **[PREENCHER: fonte das imagens de mosca-branca]**
+- **Resultados:** **87,50% de acurácia** no conjunto de avaliação. **[PREENCHER: tamanho do conjunto de avaliação e se é teste ou validação]**
 - **Treinamento:** Google Colab, com duas versões do modelo (`modelo_pragas_feijao.keras` e `modelo_pragas_feijao_v2.keras`).
 
 ### Explicabilidade com Grad-CAM
 
-Para não entregar um diagnóstico "caixa-preta", o projeto usa **Grad-CAM**: além da classe prevista, o sistema gera um **mapa de calor** sobre a foto original, mostrando quais regiões da folha mais influenciaram a decisão do modelo. Isso ajuda o produtor e o agrônomo a **validar visualmente** o resultado.
+Para não entregar um diagnóstico "caixa-preta", o projeto usa **Grad-CAM**: além da classe prevista, o sistema gera um **mapa de calor** sobre a foto original, mostrando quais regiões da imagem mais influenciaram a decisão do modelo. Isso ajuda o produtor e o agrônomo a **validar visualmente** o resultado.
 
 O script de diagnóstico (`ia/diagnostico_gradcam.py`) carrega o modelo, lê a resolução esperada automaticamente, localiza a última camada convolucional e exibe a imagem original ao lado do diagnóstico com o mapa de calor.
 
@@ -54,6 +54,23 @@ O app conta com um chatbot para apoiar o produtor.
 
 - **Modelo/API utilizado:** **[PREENCHER: ex.: Gemini, OpenAI etc.]**
 - **O que ele faz:** o Assistente IA responde perguntas do produtor usando os dados reais das análises (classe, confiança, data e umidade do solo). Por exemplo, ao perguntar "Como foi minha última análise?", ele resume o diagnóstico, interpreta o resultado e recomenda os próximos passos.
+
+---
+
+## ⚠️ Limitações e Próximos Passos
+
+Este é um projeto acadêmico e o modelo tem limitações que registramos de forma transparente:
+
+- **Dataset pequeno:** 150 imagens no total (50 por classe), então a métrica de 87,50% tem margem de erro grande: poucas imagens a mais ou a menos mudam bastante o resultado.
+- **Fontes diferentes por classe:** as imagens de folhas saudáveis e com sintomas são fotos de campo (Beans Dataset, Uganda), enquanto as de mosca-branca vêm de outra fonte, com estilo de foto diferente (close da folha, sem solo ao fundo). Nas amostras que inspecionamos, isso pode levar o modelo a aprender o estilo da foto em vez da praga em si.
+- **Condições diferentes das reais:** o modelo ainda não foi validado de forma sistemática com fotos da ESP32-CAM em lavouras brasileiras.
+- **Rótulos nem sempre limpos:** parte das imagens do dataset público pode conter pequenas manchas mesmo na classe saudável.
+
+**Próximos passos planejados**
+1. Testar o modelo com fotos reais capturadas pela ESP32-CAM e pelo celular em lavouras locais.
+2. Ampliar o dataset com fotos de mosca-branca em folhas de feijão, em campo, equilibrando o estilo das três classes.
+3. Aplicar data augmentation (fundo, brilho, recorte) e, se possível, segmentar a folha antes da classificação.
+4. Avaliar com um conjunto de teste separado, reportando precisão, recall e matriz de confusão por classe.
 
 ---
 
@@ -83,9 +100,11 @@ O app conta com um chatbot para apoiar o produtor.
 *   **[Firebase](https://firebase.google.com/):** autenticação e banco de dados (Firestore/Realtime DB).
 
 **Hardware / IoT**
-* **ESP32-CAM:** captura de imagens.
-* **DHT22:** temperatura e umidade.
-* **AWS (EC2 e S3):** processamento em nuvem e armazenamento de imagens.
+*   **ESP32-CAM:** captura de imagens.
+*   **DHT22:** temperatura e umidade.
+
+**Nuvem**
+*   **AWS (EC2 e S3):** processamento em nuvem e armazenamento de imagens.
 
 ---
 
@@ -95,7 +114,7 @@ O app conta com um chatbot para apoiar o produtor.
 PlagueHit/
 ├── App.tsx                     # Ponto de entrada principal do aplicativo
 ├── app.json                    # Configurações do Expo
-├── ia/                         # [ADICIONAR] Notebook/script de treino e diagnóstico (Grad-CAM)
+├── ia/                         # Notebook/script de treino e diagnóstico (Grad-CAM)
 ├── src/
 │   ├── assets/                 # Imagens, ícones e fontes
 │   ├── components/             # Componentes reutilizáveis de UI
@@ -233,14 +252,14 @@ We trained a convolutional neural network (CNN) with **TensorFlow/Keras** to cla
 
 - **Input:** images resized to **150x150 px** and normalized (0 to 1).
 - **Output:** predicted class + confidence score (%).
-- **Architecture / technique:** **[TODO: e.g., custom CNN, transfer learning with MobileNetV2, etc.]**
-- **Dataset:** [available on Google Drive](https://drive.google.com/drive/folders/12N3Yrw-_EajWq_iKbN4eZKtimpIj-r30?usp=drive_link). Total of **150 images** (50 per class: `mosca_branca`, `saudavel` and `sintomas`). **[TODO: image source]**
-- **Results:** **[TODO: accuracy / precision / recall on the test set]**
+- **Architecture / technique:** transfer learning with **MobileNetV2** as the base feature extractor, combined with custom classification layers (Global Average Pooling, a 256-unit Dense layer with Dropout, and a final 3-unit Dense layer).
+- **Dataset:** [available on Google Drive](https://drive.google.com/drive/folders/12N3Yrw-_EajWq_iKbN4eZKtimpIj-r30?usp=drive_link). Total of **150 images** (50 per class: `mosca_branca`, `saudavel` and `sintomas`). Healthy and symptomatic leaf images from the [Beans Dataset](https://github.com/AI-Lab-Makerere/ibean/) (Makerere AI Lab, Uganda, MIT license). **[TODO: source of the whitefly images]**
+- **Results:** **87.50% accuracy** on the evaluation set. **[TODO: evaluation set size and whether it is test or validation]**
 - **Training:** Google Colab, with two model versions (`modelo_pragas_feijao.keras` and `modelo_pragas_feijao_v2.keras`).
 
 ### Explainability with Grad-CAM
 
-To avoid a "black-box" diagnosis, the project uses **Grad-CAM**: besides the predicted class, the system generates a **heatmap** over the original photo showing which regions of the leaf most influenced the model's decision. This lets farmers and agronomists **visually validate** the result.
+To avoid a "black-box" diagnosis, the project uses **Grad-CAM**: besides the predicted class, the system generates a **heatmap** over the original photo showing which regions of the image most influenced the model's decision. This lets farmers and agronomists **visually validate** the result.
 
 The diagnosis script (`ia/diagnostico_gradcam.py`) loads the model, reads the expected input resolution automatically, finds the last convolutional layer, and displays the original image next to the diagnosis with the heatmap.
 
@@ -254,6 +273,23 @@ The app includes a chatbot to support the farmer.
 
 - **Model/API used:** **[TODO: e.g., Gemini, OpenAI, etc.]**
 - **What it does:** the AI Assistant answers the farmer's questions using real analysis data (class, confidence, date and soil moisture). For example, when asked "How was my last analysis?", it summarizes the diagnosis, interprets the result and recommends next steps.
+
+---
+
+## ⚠️ Limitations and Next Steps
+
+This is an academic project and the model has limitations that we document transparently:
+
+- **Small dataset:** 150 images in total (50 per class), so the 87.50% metric has a wide margin of error: a few more or fewer images change the result noticeably.
+- **Different sources per class:** the healthy and symptomatic leaf images are field photos (Beans Dataset, Uganda), while the whitefly images come from a different source with a different photo style (close-up of the leaf, no soil in the background). In the samples we inspected, this may lead the model to learn the photo style instead of the pest itself.
+- **Conditions differ from real use:** the model has not yet been systematically validated with ESP32-CAM photos from Brazilian fields.
+- **Labels are not always clean:** some images in the public dataset may show small spots even in the healthy class.
+
+**Planned next steps**
+1. Test the model with real photos captured by the ESP32-CAM and by phone in local fields.
+2. Expand the dataset with field photos of whitefly on bean leaves, balancing the photo style across the three classes.
+3. Apply data augmentation (background, brightness, cropping) and, if possible, segment the leaf before classification.
+4. Evaluate on a separate test set, reporting per-class precision, recall and a confusion matrix.
 
 ---
 
@@ -286,6 +322,9 @@ The app includes a chatbot to support the farmer.
 *   **ESP32-CAM:** image capture.
 *   **DHT22:** temperature and humidity.
 
+**Cloud**
+*   **AWS (EC2 and S3):** cloud processing and image storage.
+
 ---
 
 ## 📂 Project Structure
@@ -294,7 +333,7 @@ The app includes a chatbot to support the farmer.
 PlagueHit/
 ├── App.tsx                     # Main entry point of the application
 ├── app.json                    # Expo configuration file
-├── ia/                         # [ADD] Training/diagnosis notebook or script (Grad-CAM)
+├── ia/                         # Training/diagnosis notebook or script (Grad-CAM)
 ├── src/
 │   ├── assets/                 # Images, icons, and fonts
 │   ├── components/             # Reusable UI components
